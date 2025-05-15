@@ -17,6 +17,9 @@ import environ
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # for collectstatic
+
 # Set up environ
 env = environ.Env()
 
@@ -99,8 +102,12 @@ WSGI_APPLICATION = 'rapid.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env('DATABASE_NAME', default='rapiddb'),
+        'USER': env('DATABASE_USER', default='rapiduser'),
+        'PASSWORD': env('DATABASE_PASS', default='rapidpass'),
+        'HOST': env('DATABASE_IP', default='db'),
+        'PORT': '5432',
     }
 }
 
