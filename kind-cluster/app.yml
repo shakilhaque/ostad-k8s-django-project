@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-app
+  namespace: shakil
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: django-app
+  template:
+    metadata:
+      labels:
+        app: django-app
+    spec:
+      containers:
+        - name: django
+          image: shakil29/ostad-k8s-django-project-web:latest
+          ports:
+            - containerPort: 8000
+          imagePullPolicy: Always
+          env:
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: django-secret
+                  key: secret-key
+            - name: DEBUG
+              value: "False"
+            - name: ALLOWED_HOSTS
+              value: "*"
+            - name: DATABASE_NAME
+              value: rapiddb
+            - name: DATABASE_USER
+              value: rapiduser
+            - name: DATABASE_PASS
+              value: rapidpass
+            - name: DATABASE_IP
+              value: db
+          volumeMounts:
+            - name: static-volume
+              mountPath: /app/staticfiles
+      volumes:
+        - name: static-volume
+          emptyDir: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-service
+  namespace: shakil
+spec:
+  type: NodePort
+  selector:
+    app: django-app
+  ports:
+    - port: 80
+      targetPort: 8000
+      nodePort: 30080
